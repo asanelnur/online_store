@@ -39,12 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
     'rest_framework',
     'django_filters',
     'debug_toolbar',
     'django_cleanup.apps.CleanupConfig',
     'rest_framework_simplejwt',
-    'rest_framework_swagger',
+    'drf_yasg',
 
     'src',
     'users',
