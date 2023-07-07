@@ -5,12 +5,13 @@ from src import views
 
 router = DefaultRouter()
 
-router.register(r'product', views.ProductViewSet)
+router.register(r'products', views.ProductViewSet)
 router.register(r'category', views.CategoryViewSet)
 router.register(r'order', views.OrderViewSet)
 
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('basket/', views.BasketViewSet.as_view({'get': 'list', 'post': 'create'}))
+    path('basket/', views.BasketViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('basket/<pk>', views.BasketViewSet.as_view({'delete': 'destroy'})),
 ]

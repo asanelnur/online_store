@@ -10,6 +10,13 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class _ProductImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ProductImage
+        fields = ('image',)
+
+
 class ProductSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
 
@@ -20,7 +27,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ProductRetrieveSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = _ProductImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Product
@@ -68,7 +75,7 @@ class BasketCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Basket
-        fields = '__all__'
+        fields = ('product',)
 
 
 class BasketProductSerializer(serializers.ModelSerializer):

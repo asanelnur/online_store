@@ -1,8 +1,10 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from src import serializers, models, filters
 from src.paginations import MyCustomPagination
@@ -26,7 +28,7 @@ class ProductViewSet(mixins.ActionSerializerMixin, viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = models.Category.objects.all()
+    queryset = models.Category.objects.all().prefetch_related('products')
     serializer_class = serializers.CategorySerializer
     permission_classes = (IsAdminOrReadOnly,)
 
@@ -58,9 +60,14 @@ class BasketViewSet(viewsets.ViewSet):
         serializer = serializers.BasketSerializer(basket, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(request_body=serializers.BasketCreateSerializer)
     def create(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
         serializer = serializers.BasketCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = models.Basket.objects.get(id=kwargs['pk'])
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

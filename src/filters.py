@@ -10,4 +10,4 @@ class ProductFilter(filters.FilterSet):
 
     class Meta:
         model = models.Product
-        fields = ('min_price', 'max_price')
+        fields = ('min_price', 'max_price', 'is_top')
