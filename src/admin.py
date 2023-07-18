@@ -10,8 +10,6 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
 
 
-class OrderAdmin(admin.ModelAdmin):
-    filter_horizontal = ('items',)
 
 
 class ProductAdmin(admin.ModelAdmin):
@@ -25,6 +23,6 @@ class ProductAdmin(admin.ModelAdmin):
 admin.site.register(models.Product, ProductAdmin)
 admin.site.register(models.ProductImage)
 admin.site.register(models.OrderItem)
-admin.site.register(models.Order, OrderAdmin)
+admin.site.register(models.Order)
 admin.site.register(models.Category)
 admin.site.register(models.Basket)

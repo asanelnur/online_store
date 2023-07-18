@@ -53,11 +53,19 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ('title', 'price', 'count', 'total_price')
 
 
+class _CreateOrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OrderItem
+        fields = ('product', 'count')
+
+
 class OrderCreateSerializer(serializers.ModelSerializer):
+    items = _CreateOrderItemSerializer(write_only=True, many=True)
+    total = serializers.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
         model = models.Order
-        fields = '__all__'
+        fields = ('items', 'total')
 
 
 class OrderSerializer(serializers.ModelSerializer):

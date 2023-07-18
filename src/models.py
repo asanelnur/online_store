@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from . import choices
 
 from onlinestore import settings
 
@@ -62,8 +63,30 @@ class ProductImage(models.Model):
         verbose_name_plural = _('Product images')
 
 
+
+class Order(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=12, decimal_places=2)
+    status = models.CharField(max_length=20,
+                              choices=choices.OrderStatusChoices.choices,
+                              default=choices.OrderStatusChoices.New)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('-created_at', )
+        verbose_name = _('Order')
+        verbose_name_plural = _('Orders')
+
+    def __str__(self):
+        return f'{self.user} {self.created_at}'
+
+
 class OrderItem(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    order = models.ForeignKey(to=Order, on_delete=models.PROTECT, related_name='items')
     product = models.ForeignKey(to=Product, on_delete=models.CASCADE)
     count = models.PositiveIntegerField(default=0)
 
@@ -83,22 +106,7 @@ class OrderItem(models.Model):
         return self.product.price*self.count
 
 
-class Order(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    items = models.ManyToManyField(to=OrderItem)
-    total = models.DecimalField(max_digits=12, decimal_places=2)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ('-created_at', )
-        verbose_name = _('Order')
-        verbose_name_plural = _('Orders')
-
-    def __str__(self):
-        return f'{self.user} {self.created_at}'
 
 
 class Basket(models.Model):

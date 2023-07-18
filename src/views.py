@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from src import serializers, models, filters, permissions
+from src import serializers, models, filters, permissions, services
 from src.paginations import MyCustomPagination
 from src.permissions import IsAdminOrReadOnly
 from utils import mixins
@@ -35,24 +35,36 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = models.Order.objects.all()
+    order_services: services.OrderServicesInterface = services.OrderServicesV1()
     serializer_class = serializers.OrderSerializer
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        orders = models.Order.objects.filter(user_id=request.user.id)
+        orders = self.order_services.get_orders(user=request.user)
         serializer = serializers.OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(request_body=serializers.OrderCreateSerializer)
     def create(self, request, *args, **kwargs):
-        request.data['user'] = request.user.id
         serializer = serializers.OrderCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        order = self.order_services.create_order(serializer.validated_data, user=request.user )
+        data = serializers.OrderSerializer(order).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
-
+# {
+#   "items": [
+#     {
+#       "product": "994815d5-2481-42e2-b564-8ed8ed43b462",
+#       "count": 1
+#     },
+#     {
+#       "product": "e0200b7f-7b76-46b3-a5aa-7f701d2eee9d",
+#       "count": 2
+#     }
+#   ],
+#   "total": "1500000"
+# }
 class BasketViewSet(viewsets.ViewSet, ActionPermissionMixin):
     ACTION_PERMISSIONS = {
         'destroy': (permissions.IsOwnerOrAdmin(),),
