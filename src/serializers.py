@@ -90,4 +90,4 @@ class BasketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Basket
-        fields = '__all__'
+        fields = ('product',)

@@ -6,10 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from src import serializers, models, filters
+from src import serializers, models, filters, permissions
 from src.paginations import MyCustomPagination
 from src.permissions import IsAdminOrReadOnly
 from utils import mixins
+from utils.mixins import ActionPermissionMixin
 
 
 # Create your views here.
@@ -52,8 +53,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class BasketViewSet(viewsets.ViewSet):
-    permission_classes = (IsAuthenticated,)
+class BasketViewSet(viewsets.ViewSet, ActionPermissionMixin):
+    ACTION_PERMISSIONS = {
+        'destroy': (permissions.IsOwnerOrAdmin(),),
+    }
+    permission_classes = IsAuthenticated,
 
     def list(self, request, *args, **kwargs):
         basket = models.Basket.objects.filter(user_id=request.user.id)
@@ -66,6 +70,7 @@ class BasketViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
     def destroy(self, request, *args, **kwargs):
         instance = models.Basket.objects.get(id=kwargs['pk'])
