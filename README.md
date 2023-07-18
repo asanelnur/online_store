@@ -37,14 +37,17 @@ The app is written in Django Python:
 </br>
 
 # Database: SQLite
+<b>SQLite</b> provides an excellent development alternative for applications that are predominantly read-only or require a smaller installation footprint. As with all database servers, though, there are some differences that are specific to SQLite that you should be aware of.
 
 </br>
+<pre> 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+</pre>
 
 # To clone and run project
 https://www.geeksforgeeks.org/clone-and-run-a-django-project-from-github/
