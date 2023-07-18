@@ -36,6 +36,15 @@ The app is written in Django Python:
 </br>
 </br>
 
+# Database: SQLite
+
+</br>
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # To clone and run project
 https://www.geeksforgeeks.org/clone-and-run-a-django-project-from-github/
